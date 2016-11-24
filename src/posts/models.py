@@ -8,6 +8,7 @@ from django.utils.text import slugify
 
 def upload_location(instance, filename):
     """ This puts the file in the instance pk folder"""
+    print('This is my instance id:{}'.format(instance.id))
     return "{}/{}".format(instance.id, filename)
 
 

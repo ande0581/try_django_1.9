@@ -1,4 +1,5 @@
 {% extends "_base.html" %}
+{% load urlify %}
 
 
 {% block head_title %}
@@ -14,6 +15,8 @@
 
 {{ instance.content|linebreaks }}<br/>
 
+<a href="https://twitter.com/home?status={{ instance.content|urlify }}%20{{ request.build_absolute_uri }}">
+    Share on Twitter</a>
 </div>
 
 {% endblock content %}
