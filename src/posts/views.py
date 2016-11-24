@@ -33,7 +33,7 @@ def post_list(request):
     queryset = Post.objects.all()
     context = {'title': 'list',
                'object_list': queryset}
-    return render(request, 'index.html', context)
+    return render(request, 'post_list.html', context)
 
 
 def post_update(request, pk=None):
