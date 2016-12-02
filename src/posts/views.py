@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # Create your views here.
@@ -45,6 +46,15 @@ def post_list(request):
         queryset_list = Post.objects.all().order_by('-publish')
     #queryset_list = Post.objects.all().order_by('-timestamp')  # sorts by timestamp, newest first
     #queryset_list = Post.objects.filter(draft=False).filter(publish__lte=timezone.now())
+
+    query = request.GET.get("q")
+    if query:
+        queryset_list = queryset_list.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(user__first_name__icontains=query) |
+            Q(user__last_name__icontains=query)
+        ).distinct()  ## this prevents duplicates
     paginator = Paginator(queryset_list, 5)  # Show 5 contacts per page
 
     page = request.GET.get('page')
