@@ -4,12 +4,14 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # Create your views here.
+from django.utils import timezone
+
 from .models import Post
 from .forms import PostForm
 
 
 def post_create(request):
-    if not request.user.is_authenticated():
+    if not request.user.is_staff or not request.user.is_superuser:
         raise Http404
     form = PostForm(request.POST or None, request.FILES or None)
     if form.is_valid():
@@ -28,13 +30,21 @@ def post_create(request):
 
 def post_detail(request, slug):
     instance = get_object_or_404(Post, slug=slug)
+    if instance.publish > timezone.now().date() or instance.draft:
+        if not request.user.is_staff or not request.user.is_superuser:
+            raise Http404
     context = {'title': instance.title,
                'instance': instance}
     return render(request, 'post_detail.html', context)
 
 
 def post_list(request):
-    queryset_list = Post.objects.all().order_by('-timestamp')  # sorts by timestamp, newest first
+    today = timezone.datetime.now().date()
+    queryset_list = Post.objects.active()  # this is the special model manager class we wrote
+    if request.user.is_staff or request.user.is_superuser:
+        queryset_list = Post.objects.all().order_by('-publish')
+    #queryset_list = Post.objects.all().order_by('-timestamp')  # sorts by timestamp, newest first
+    #queryset_list = Post.objects.filter(draft=False).filter(publish__lte=timezone.now())
     paginator = Paginator(queryset_list, 5)  # Show 5 contacts per page
 
     page = request.GET.get('page')
@@ -47,12 +57,13 @@ def post_list(request):
         # If page is out of range (e.g. 9999), deliver last page of results.
         queryset = paginator.page(paginator.num_pages)
     context = {'title': 'list',
-               'object_list': queryset}
+               'object_list': queryset,
+               'today': today}
     return render(request, 'post_list.html', context)
 
 
 def post_update(request, slug=None):
-    if not request.user.is_authenticated():
+    if not request.user.is_staff or not request.user.is_superuser:
         raise Http404
     instance = get_object_or_404(Post, slug=slug)
     form = PostForm(request.POST or None, request.FILES or None, instance=instance)
@@ -69,7 +80,7 @@ def post_update(request, slug=None):
 
 
 def post_delete(request, slug):
-    if not request.user.is_authenticated():
+    if not request.user.is_staff or not request.user.is_superuser:
         raise Http404
     instance = get_object_or_404(Post, slug=slug)
     instance.delete()
