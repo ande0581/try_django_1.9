@@ -4,6 +4,8 @@ from django.db.models.signals import pre_save
 from django.utils.text import slugify
 from django.conf import settings
 from django.utils import timezone
+from django.utils.safestring import mark_safe
+from markdown_deux import markdown
 
 # Create your models here.
 
@@ -19,9 +21,16 @@ class PostManager(models.Manager):
 
 
 def upload_location(instance, filename):
-    """ This puts the file in the instance pk folder"""
-    print('This is my instance id:{}'.format(instance.id))
-    return "{}/{}".format(instance.id, filename)
+    PostModel = instance.__class__
+    new_id = PostModel.objects.order_by("id").last().id + 1
+    """
+    instance.__class__ gets the model Post. We must use this method because the model is defined below.
+    Then create a queryset ordered by the "id"s of each object,
+    Then we get the last object in the queryset with `.last()`
+    Which will give us the most recently created Model instance
+    We add 1 to it, so we get what should be the same id as the the post we are creating.
+    """
+    return "{}/{}".format(new_id, filename)
 
 
 class Post(models.Model):
@@ -45,6 +54,35 @@ class Post(models.Model):
 
     def get_absolute_url(self):
         return reverse('posts:detail', kwargs={'slug': self.slug})
+
+    def get_markdown(self):
+        content = self.content
+        print("Content: ", content)
+        print()
+        markdown_text = markdown(content)
+        print("Markdown Text: ", markdown_text)
+        print()
+        print("Mark Safe: ", mark_safe(markdown_text))
+        my_test_1 = """
+        <p><a href="http://www.google.com">google</a>
+        second try
+        <img src="http://animalsbreeds.com/wp-content/uploads/2014/06/Schipperke-10.jpg" alt="cody"></p>
+        """
+        my_test_2 = """
+        <p><a href="http%3A%2F%2Fwww.google.com">google</a>
+        second try
+        <img src="http%3A%2F%2Fanimalsbreeds.com%2Fwp-content%2Fuploads%2F2014%2F06%2FSchipperke-10.jpg" alt="cody" /></p>
+        """
+
+        #return mark_safe(my_test_1)  # this works and represents the jquery method
+
+        """
+        This doesnt work using the mark-deux method. I get this error back on the django console
+        [04/Dec/2016 10:41:00] "GET /posts/cody-2/ HTTP/1.1" 200 3637
+        Not Found: /posts/cody-2/http://animalsbreeds.com/wp-content/uploads/2014/06/Schipperke-10.jpg
+        [04/Dec/2016 10:41:00] "GET /posts/cody-2/http%3A%2F%2Fanimalsbreeds.com%2Fwp-content%2Fuploads%2F2014%2F06%2FSchipperke-10.jpg HTTP/1.1" 404 3327
+        """
+        #return mark_safe(my_test_2)
 
 
 # This is a recursive function
