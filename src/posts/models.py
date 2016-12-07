@@ -6,6 +6,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from markdown_deux import markdown
+from comments.models import Comment
 
 # Create your models here.
 
@@ -74,16 +75,20 @@ class Post(models.Model):
         <img src="http%3A%2F%2Fanimalsbreeds.com%2Fwp-content%2Fuploads%2F2014%2F06%2FSchipperke-10.jpg" alt="cody" /></p>
         """
 
-        #return mark_safe(my_test_1)  # this works and represents the jquery method
-
         """
         This doesnt work using the mark-deux method. I get this error back on the django console
         [04/Dec/2016 10:41:00] "GET /posts/cody-2/ HTTP/1.1" 200 3637
         Not Found: /posts/cody-2/http://animalsbreeds.com/wp-content/uploads/2014/06/Schipperke-10.jpg
         [04/Dec/2016 10:41:00] "GET /posts/cody-2/http%3A%2F%2Fanimalsbreeds.com%2Fwp-content%2Fuploads%2F2014%2F06%2FSchipperke-10.jpg HTTP/1.1" 404 3327
         """
+        return mark_safe(my_test_1)  # this works and represents the jquery method
         #return mark_safe(my_test_2)
 
+    @property
+    def comments(self):
+        instance = self
+        qs = Comment.objects.filter_by_instance(instance)
+        return qs
 
 # This is a recursive function
 def create_slug(instance, new_slug=None):

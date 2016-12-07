@@ -45,14 +45,13 @@ Linkedin
 <br/>
     <div>
         <p class="lead">Comments</p>
+        <hr/>
         {% for comment in comments %}
-            <div class="">
-                {{ comment.content }}
-                <br/>
-                <small>by {{ comment.user }} | {{ comment.timestamp|timesince }} ago</small>
-                <hr/>
-            </div>
-
+            <blockquote>
+              <p>{{ comment.content }}</p>
+              <footer>by {{ comment.user }} | {{ comment.timestamp|timesince }} ago</footer>
+            </blockquote>
+            <hr/>
         {% endfor %}
     </div>
 
