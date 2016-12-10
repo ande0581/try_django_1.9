@@ -60,31 +60,8 @@ class Post(models.Model):
 
     def get_markdown(self):
         content = self.content
-        print("Content: ", content)
-        print()
         markdown_text = markdown(content)
-        print("Markdown Text: ", markdown_text)
-        print()
-        print("Mark Safe: ", mark_safe(markdown_text))
-        my_test_1 = """
-        <p><a href="http://www.google.com">google</a>
-        second try
-        <img src="http://animalsbreeds.com/wp-content/uploads/2014/06/Schipperke-10.jpg" alt="cody"></p>
-        """
-        my_test_2 = """
-        <p><a href="http%3A%2F%2Fwww.google.com">google</a>
-        second try
-        <img src="http%3A%2F%2Fanimalsbreeds.com%2Fwp-content%2Fuploads%2F2014%2F06%2FSchipperke-10.jpg" alt="cody" /></p>
-        """
-
-        """
-        This doesnt work using the mark-deux method. I get this error back on the django console
-        [04/Dec/2016 10:41:00] "GET /posts/cody-2/ HTTP/1.1" 200 3637
-        Not Found: /posts/cody-2/http://animalsbreeds.com/wp-content/uploads/2014/06/Schipperke-10.jpg
-        [04/Dec/2016 10:41:00] "GET /posts/cody-2/http%3A%2F%2Fanimalsbreeds.com%2Fwp-content%2Fuploads%2F2014%2F06%2FSchipperke-10.jpg HTTP/1.1" 404 3327
-        """
-        return mark_safe(my_test_1)  # this works and represents the jquery method
-        #return mark_safe(my_test_2)
+        return mark_safe(markdown_text)  # this works and represents the jquery method
 
     @property
     def comments(self):
