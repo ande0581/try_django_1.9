@@ -52,27 +52,26 @@ Linkedin
         <hr/>
         {% for comment in comments %}
 
-            <blockquote>
-              <p>{{ comment.content }}</p>
-              <footer>by {{ comment.user }} | {{ comment.timestamp|timesince }} ago |
-                  {% if comment.children.count > 0 %}{{ comment.children.count }} Comments |{% endif %}
-                  <a class="comment-reply-btn" href="#">Reply</a></footer>
-                <div class="comment-reply">
-                    {% for child_comment in comment.children %}
-                    <blockquote>
-                      <p>{{ child_comment.content }}</p>
-                      <footer>by {{ child_comment.user }} | {{ child_comment.timestamp|timesince }} ago</footer>
-                    </blockquote>
-                    {% endfor %}
+        <blockquote>
+          <p>{{ comment.content }}</p>
+          <footer>via {{ comment.user }} | {{ comment.timestamp|timesince }} ago | {% if comment.children.count > 0 %}{{ comment.children.count }} Comment{% if comment.children.count > 1 %}s{% endif %} | {% endif %} <a class='comment-reply-btn' href='#'>Reply</a> | <a class='' href='{{ comment.get_absolute_url }}'>Thread</a></footer>
+          <div class='comment-reply'>
+              {% for child_comment in comment.children %}
+                <blockquote>
+                <p>{{ child_comment.content }}</p>
+                <footer>via {{ child_comment.user }} | {{ child_comment.timestamp|timesince }} ago</footer>
+                </blockquote>
+             {% endfor %}
 
-                    <form method="POST" action="."> {% csrf_token %}
-                        {{ comment_form|crispy }}
-                        <input type="hidden" name="parent_id" value="{{ comment.id }}">
-                        <input type="submit" value="Reply" class="btn btn-default">
-                    </form>
-                </div>
+            <form method="POST" action="."> {% csrf_token %}
+                {{ comment_form|crispy }}
+                <input type='hidden' name='parent_id' value='{{ comment.id }}'>
+                <input type='submit' value='Reply' class='btn btn-default'>
+            </form>
+        </div>
 
-            </blockquote>
+        </blockquote>
+
             <hr/>
         {% endfor %}
     </div>
