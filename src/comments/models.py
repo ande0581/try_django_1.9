@@ -37,6 +37,9 @@ class Comment(models.Model):
     def get_absolute_url(self):
         return reverse("comments:thread", kwargs={"pk": self.id})
 
+    def get_delete_url(self):
+        return reverse("comments:delete", kwargs={"pk": self.id})
+
     def children(self):  # replies
         return Comment.objects.filter(parent=self)
 
