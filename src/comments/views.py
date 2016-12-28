@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404
@@ -7,6 +8,7 @@ from .forms import CommentForm
 from .models import Comment
 
 
+@login_required  # uses the default url in the project settings LOGIN_URL
 def comment_delete(request, pk):
     try:
         obj = Comment.objects.get(pk=pk)
@@ -49,7 +51,7 @@ def comment_thread(request, pk):
             "object_id": obj.object_id
     }
     form = CommentForm(request.POST or None, initial=initial_data)
-    if form.is_valid():
+    if form.is_valid() and request.user.is_authenticated():
         c_type = form.cleaned_data.get("content_type")
         content_type = ContentType.objects.get(model=c_type)
         obj_id = form.cleaned_data.get('object_id')
