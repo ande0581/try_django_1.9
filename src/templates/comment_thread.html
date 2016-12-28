@@ -20,7 +20,7 @@
             <blockquote>
               <p>{{ child_comment.content }}</p>
               <footer>by {{ child_comment.user }} | {{ child_comment.timestamp|timesince }} ago
-                  {% if child_comment.user == comment.user %}<a href="{{ child_comment.get_delete_url }}">Delete</a>
+                  {% if request.user == child_comment.user %}<a href="{{ child_comment.get_delete_url }}">Delete</a>
                   {% endif %}</footer>
             </blockquote>
             {% endfor %}
